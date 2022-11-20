@@ -2,7 +2,27 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-{% if user.is_authenticated %}
-  Hey jij {{ user.username }} je bent op het dashboard!
-{% endif %}
+<script>
+function get_data(){
+  var d = new Date();
+  d.setMonth(d.getMonth() - 1);
+  d.setHours(0, 0, 0, 0);
+  $.ajax({
+      type: "POST",
+      url: "{% url 'api_raw_data' %}", 
+      data: {
+        'csrfmiddlewaretoken': '{{csrf_token}}',
+        'from_date':d.toJSON(),
+        'to_date':new Date().toJSON(),
+        'asset':1,
+        'interval':3
+      },
+      success : function(data) {
+          $('#main-content').text(data);
+        }
+  });
+}
+get_data()
+</script>
 {% endblock %}
+

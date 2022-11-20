@@ -11,9 +11,9 @@
 
 body {
     position: relative;
-    margin: var(--header-height) 0 0 0;
+    margin: $header-height 0 0 0;
     padding: 0 1rem;
-    font-size: var(--normal-font-size);
+    font-size: $normal-font-size;
     transition: .5s
 }
 

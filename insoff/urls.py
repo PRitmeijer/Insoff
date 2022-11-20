@@ -23,7 +23,7 @@ from .apps.kraken.views import sync_kraken_assets
 from .views import home
 
 urlpatterns = [
-    path('', include('charts.urls')),
+    path('charts/', include('charts.urls')),
     path('', home),
     path('sync/', sync_kraken_assets),
     path('admin/', admin.site.urls),

@@ -1,0 +1,52 @@
+*,
+::before,
+::after {
+    box-sizing: border-box
+}
+
+body {
+    position: relative;
+    margin: $header-height 0 0 0;
+    padding: 0 1rem;
+    font-size: $normal-font-size;
+    transition: .5s
+}
+
+.header {
+    width: 100%;
+    height: $header-height;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    background-color: $primary-color;
+    z-index: $z-fixed;
+    transition: .5s
+}
+
+.header_app {
+    font-size: 2rem;
+    color: $light-white-color;
+}
+
+.header_toggle{
+    visibility: hidden;
+}
+
+.header {
+    height: calc($header-height + 1rem);
+    padding: 0 2rem 0 calc($nav-width + 2rem)
+}
+
+@media screen and (max-width: $mobile-width) {    
+    .header_toggle {
+        visibility: visible;
+        color: $light-white-color;
+        z-index: 500;
+        font-size: 1.5rem;
+        cursor: pointer
+    }
+}

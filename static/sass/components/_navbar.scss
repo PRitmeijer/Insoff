@@ -1,0 +1,103 @@
+.t-navbar {
+    a {
+        text-decoration: none
+    }
+    transition: .5s;
+    .nav {
+        .nav_list
+        {
+            display: flex;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        .nav_logo,
+        .nav_link {
+            font-size: 1.2rem;
+            margin-left: 2rem;
+            position: relative;
+            color: $primary-color-lighter-90;
+            transition: .3s;
+        }
+        
+        .nav_link:hover {
+            color: $light-white-color;
+        }
+        .nav_logo{
+            display: none;
+        }
+    }
+}
+
+.active {
+    color: $light-white-color;
+    font-weight: 600;
+    border-bottom: 3px solid $light-white-color;
+}
+
+@media screen and (max-width: $mobile-width) {    
+    .t-navbar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: $primary-color;
+        padding: .5rem 1rem 0 0;
+        transition: .5s;
+        z-index: $z-fixed;
+    
+        .nav {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        .nav_list{
+            flex-direction: column;
+        }
+        .nav_logo,
+        .nav_link {
+            display: grid;
+            grid-template-columns: max-content max-content;
+            align-items: center;
+            column-gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: .5rem 0 .5rem 1.5rem;
+        }
+        
+        .nav_logo {
+            display: block !important;
+            font-size: 2rem !important;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+        
+        .nav_logo-icon {
+            font-size: 1.25rem;
+            color: $light-white-color;
+        }
+        
+        .nav_logo-name {
+            color: $light-white-color;
+            font-weight: 700;
+        }
+    }
+
+    .active{
+        border-bottom: 0;
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 4px;
+            height: 32px;
+            background-color: $light-white-color
+            }
+    }
+
+    .show {
+        display: block;
+    }
+}

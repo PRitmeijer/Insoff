@@ -1,0 +1,13 @@
+{% load compress %}
+{% load static %}
+{% compress css %}
+<link type="text/x-scss" rel="stylesheet" href="{% static 'lib/boot/sass/bootstrap.scss' %}">
+<link type="text/x-scss" rel="stylesheet" href="{% static 'sass/base.scss' %}">
+{% endcompress %}
+<link rel="stylesheet" href="{% static 'lib/fontawesome/css/all.css' %}" >
+<script src="{% static 'lib/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'lib/popper.min.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>  
+<script src="{% static 'lib/boot/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/navbar.js'%}"></script>
+{% block scripting %}{% endblock %}

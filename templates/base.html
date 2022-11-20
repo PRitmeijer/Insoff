@@ -2,19 +2,9 @@
     <head>
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %} - INSOFF</title>
-    {% load compress %}
     {% load static %}
-    {% compress css %}
-    <link type="text/x-scss" rel="stylesheet" href="{% static 'lib/boot/sass/bootstrap.scss' %}">
-    <link type="text/x-scss" rel="stylesheet" href="{% static 'sass/base.scss' %}">
-    {% endcompress %}
-    <link rel="stylesheet" href="{% static 'lib/fontawesome/css/all.css' %}" >
-    <script src="{% static 'lib/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'lib/popper.min.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>  
-    <script src="{% static 'lib/boot/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'js/navbar.js'%}"></script>
-    {% block scripting %}{% endblock %}
+    {% include 'components/style.html' %}
+    {% include 'components/script.html' %}
     </head>
     <body>
         <header class="header" id="header">
@@ -38,7 +28,6 @@
         </header>
         <!--Container Main start-->
         <div id="main-content" class="pt-5 d-flex flex-column align-items-center">
-            <i class="cf cf-42"></i>
             {% block content %}
             {% endblock %}
         </div>
@@ -66,5 +55,6 @@
             });
         }
     </script>
+    {% block scripting %}{% endblock %}
     
 </html>

@@ -1,8 +1,12 @@
-{% for asset in assets %}
-<p>{{asset.name}}</p>
-{%endfor%}
+<select id="asset" class="selectpicker" data-live-search="true">
+  {% for asset in assets %}
+    <option data-tokens="{{asset.ticker}}"><i class="cf cf-{{asset.symbol}}"></i>{{asset.name}}</option>
+  {%endfor%}
+</select>
+
 <canvas id="myChartBar"></canvas>
 <script>
+  $('#asset').selectpicker();
   drawBarGraph("myChartBar")
   function drawBarGraph(id) {
     var labels = [

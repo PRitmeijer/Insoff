@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{% static 'lib/fontawesome/css/all.css' %}" >
     <script src="{% static 'lib/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'lib/popper.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>  
     <script src="{% static 'lib/boot/js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/navbar.js'%}"></script>
     {% block scripting %}{% endblock %}
@@ -25,7 +26,7 @@
                             <div class="nav_list">
                                 <a href="javascript:javascript:void(0)" onClick="javascript:nav_dashboard()" class="nav_logo"><span class="nav_name">INSOC</span></a>
                                 <a href="javascript:javascript:void(0)" onClick="javascript:nav_dashboard()" class="nav_link active"><span class="nav_name">Home</span></a>
-                                <a href="javascript:javascript:void(0)" onClick="javascript:nav_templates()" class="nav_link"><span class="nav_name">DCA</span></a>
+                                <a href="javascript:javascript:void(0)" onClick="javascript:nav_charts()" class="nav_link"><span class="nav_name">Charts</span></a>
                                 <a href="#" class="nav_link"><span class="nav_name">About Us</span></a>
                             </div>
                         </div>
@@ -36,14 +37,15 @@
             {% comment %} <div class="header_img"> <i class='fas fa-user-circle' style="font-size: 48px;" id="header-toggle"></i> </div> {% endcomment %}
         </header>
         <!--Container Main start-->
-        <div id="main-content" class="pt-5 d-flex justify-content-center">
+        <div id="main-content" class="pt-5 d-flex flex-column align-items-center">
+            <i class="cf cf-42"></i>
             {% block content %}
             {% endblock %}
         </div>
         <!--Container Main end-->
     </body>
     <script>
-        {% comment %} function nav_dashboard(){
+        {% comment %} {% comment %} function nav_dashboard(){
             $.ajax({
                 type: "POST",
                 url: "{% url 'ajax_dashboard_overview' %}", 
@@ -52,18 +54,17 @@
                      $('#main-content').html(data);
                  }
             });
-        }
+        } {% endcomment %}
 
-        function nav_templates(){
+        function nav_charts(){
             $.ajax({
-                type: "POST",
-                url: "{% url 'ajax_template_overview' %}", 
-                data: {'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                type: "GET",
+                url: "{% url 'api_chart_overview' %}", 
                 success : function(data) {
                      $('#main-content').html(data);
                  }
             });
-        } {% endcomment %}
+        }
     </script>
     
 </html>

@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
-{% block title %}Home{% endblock %}
-{% block content %}
+{% for asset in assets %}
+<p>{{asset.name}}</p>
+{%endfor%}
 <canvas id="myChartBar"></canvas>
 <script>
   drawBarGraph("myChartBar")
@@ -76,5 +76,4 @@ function get_data(){
 }
 get_data()
 </script>
-{% endblock %}
 

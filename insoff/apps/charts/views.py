@@ -3,6 +3,7 @@ from django.shortcuts import render
 from datetime import datetime
 from charts.models import *
 from rest_framework.views import APIView
+from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework import authentication, permissions
 from django.contrib.auth.models import User
@@ -12,6 +13,18 @@ from django.contrib.auth.models import User
 def home(request):
     return render(request, 'base.html')
 
+
+def charts(request):
+    return render(request, 'portal/dashboard.html')
+
+
+class ChartOverview(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'charts/charts.html'
+
+    def get(self, request):
+        assets = Asset.objects.all()
+        return Response({'assets':assets})
 
 class ChartData(APIView):
     authentication_classes = []
@@ -33,6 +46,6 @@ class ChartData(APIView):
                 'date':s.date,
                 'vwap':s.vwap
             } for s in stats]
-            return JsonResponse({"status":200, "data": data})
+            return Response(status=200, data=data)
         else:
-            return JsonResponse({"status":204})
+            return Response(status=204)

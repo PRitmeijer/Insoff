@@ -6,7 +6,6 @@ from django.db import models
 class Provider(models.IntegerChoices):
         KRAKEN = 0, 'KRAKEN'
 
-
 class PriceInterval(models.IntegerChoices):
         YEAR = 0, 'YEAR'
         MONTH = 1, 'MONTH'

@@ -12,7 +12,7 @@ import kraken.api.public as kraken_api
 # Create your views here.
 def sync_kraken_assets(request):
     kraken_assets = Asset.objects.filter(provider=Provider.KRAKEN)
-    epoch = datetime.timestamp(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(weeks=20))
+    epoch = datetime.timestamp(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(weeks=52))
     for asset in kraken_assets:
         data = kraken_api.get_ohlc_data(asset.api_name, 1440, epoch)[asset.api_name]
         for timestamp in data:

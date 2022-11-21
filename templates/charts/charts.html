@@ -1,31 +1,31 @@
 <div class="container chart-container">
-  <div class="row">
-    <div class="col-4 chart-filter p-3">
+  <div class="row pb-3">
+    <div class="col-4 chart-filter">
       <div class="card">
         <ul class="list-group list-group-flush">
           <li class="list-group-item fw-bold">Settings</li>
           <li class="list-group-item">
             <div class="mb-3">
               <label for="assetSelect" class="form-label d-block fw-semibold">Crypto</label>
-              <select id="assetSelect" class="selectpicker crypto-select" data-live-search="true" data-size="5">
+              <select id="assetSelect" class="selectpicker crypto-select" data-live-search="true" data-size="5" data-width="100%" onchange="onChangeSettings(event);">
                 {% for asset in assets %}
-                  <option data-tokens="{{asset.ticker}}">{{asset.symbol_unicode|safe}} {{asset.name}}</option>
+                  <option data-tokens="{{asset.ticker}}" value="{{asset.id}}">{{asset.symbol_unicode|safe}} {{asset.name}}</option>
                 {%endfor%}
               </select>
             </div>
             <div class="mb-3">
                 <label for="startDate">Start</label>
-                <input id="startDate" class="form-control" type="date" />
+                <input id="startDate" class="form-control" type="date" onchange="onChangeSettings(event);"/>
             </div>
             <div class="mb-3">
                 <label for="endDate">End</label>
-                <input id="endDate" class="form-control" type="date" />
+                <input id="endDate" class="date form-control" type="date" onchange="onChangeSettings(event);"/>
             </div>
             <div class="mb-3">
-              <label for="startDate">Scope</label>
-              <select class="form-select">
+              <label for="scopeSelect">Scope</label>
+              <select id="scopeSelect" class="form-select" onchange="onChangeSettings(event);">
                 <option value="1">Day</option>
-                <option value="2">Week</option>
+                <option value="2" selected="selected">Week</option>
                 <option value="3">Month</option>
               </select>
             </div>
@@ -43,82 +43,138 @@
         </ul>
       </div>
     </div>
-  <div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item fw-bold">Data Used</li>
+          <li class="list-group-item">
+            <canvas id="dataUsedChart"></canvas>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-  $('#assetSelect').selectpicker();
-  drawBarGraph("myChartBar")
-  function drawBarGraph(id) {
-    var labels = [
-                  'January',
-                  'February', 
-                  'March', 
-                  'April', 
-                  'May', 
-                  'June', 
-                  'July'
-                  ]
-    var chartLabel = "my data"
-    var chartdata = [0, 10, 5, 2, 20, 30, 45]
-    var ctx = document.getElementById(id).getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: chartLabel,
-          data: chartdata,
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)'
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
-          ],
-          borderWidth: 1
-        }]
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true
-            }
-          }]
+$('#assetSelect').selectpicker();
+var assetInput = $("#assetSelect").val(),
+startDateInput = document.getElementById('startDate').valueAsDate,
+endDateInput = document.getElementById('endDate').valueAsDate,
+scopeInput = document.getElementById('scopeSelect').value;
+
+function onChangeSettings(e){
+  var id = e.target.id,
+  value = e.target.value,
+  valueAsDate = e.target.valueAsDate;
+  if (id && (value || valueAsDate)){
+    switch(id){
+      case 'assetSelect':
+        if (assetInput != value){
+          assetInput = value;
+          updateData();
         }
-      }
-    });
+        break;
+      case 'startDate':
+        if (startDateInput != valueAsDate){
+          startDateInput = valueAsDate;
+          updateData();
+        }
+        break;
+      case 'endDate':
+        if (endDateInput != valueAsDate){
+          endDateInput = valueAsDate;
+          updateData();
+        }
+        break;
+      case 'scopeSelect':
+        if (scopeInput != value){
+          scopeInput = value;
+          updateData();
+        }
+        break;
+      default:
+        console.log(`${e.target.id} does not exist!`);
+        break;
+    }
   }
+}
 
 function get_data(){
-  var d = new Date();
-  d.setMonth(d.getMonth() - 1);
-  d.setHours(0, 0, 0, 0);
-  $.ajax({
+  return $.ajax({
       type: "POST",
       url: "{% url 'api_raw_data' %}", 
       data: {
         'csrfmiddlewaretoken': '{{csrf_token}}',
-        'from_date':d.toJSON(),
-        'to_date':new Date().toJSON(),
-        'asset':1,
-        'interval':3
+        'from_date': startDateInput.toJSON(),
+        'to_date': endDateInput.toJSON(),
+        'asset':assetInput,
+        'scope':scopeInput
       },
       success : function(data) {
-          
-        }
+        console.log(data)
+        return data
+      }
   });
 }
-get_data()
+
+function updateData(){
+  if (assetInput && startDateInput && endDateInput && scopeInput){
+    console.log('compleet');
+    get_data().then(function(results){
+      console.log(results)
+      var graph_data = results.results;
+      drawBarGraph(graph_data, "myChartBar");
+    });
+  }
+}
+
+function drawBarGraph(data, id) {
+  var labels = data.map(a => a.date);
+  var chartdata = data.map(a => a.amount);
+  var ctx = document.getElementById(id).getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: chartdata,
+        backgroundColor: [
+          'rgba(201, 0, 118, 0.2)',
+          'rgba(201, 0, 118, 0.2)',
+          'rgba(201, 0, 118, 0.2)',
+          'rgba(201, 0, 118, 0.2)',
+          'rgba(201, 0, 118, 0.2)',
+          'rgba(201, 0, 118, 0.2)',
+          'rgba(201, 0, 118, 0.2)'
+        ],
+        borderColor: [
+          'rgba(201, 0, 118, 1)',
+          'rgba(201, 0, 118, 1)',
+          'rgba(201, 0, 118, 1)',
+          'rgba(201, 0, 118, 1)',
+          'rgba(201, 0, 118, 1)',
+          'rgba(201, 0, 118, 1)',
+          'rgba(201, 0, 118, 1)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      },
+      legend: {
+        display: false
+      }
+    }
+  });
+}
 </script>
 

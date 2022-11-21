@@ -17,6 +17,7 @@ class Asset(models.Model):
         name = models.CharField(max_length=50, unique=True)
         ticker_name = models.CharField(max_length=10, unique=True)
         symbol = models.CharField(max_length=10)
+        symbol_unicode = models.CharField(max_length=10)
         api_name = models.CharField(max_length=30, unique=True)
         provider = models.IntegerField(default=Provider.KRAKEN, choices=Provider.choices)
 

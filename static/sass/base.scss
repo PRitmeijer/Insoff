@@ -2,6 +2,7 @@
 @import "icons/cryptofont.scss";
 @import "components/header";
 @import "components/navbar";
+@import "components/chart";
 
 
 *,
@@ -15,9 +16,18 @@ body {
     margin: $header-height 0 0 0;
     padding: 0 1rem;
     font-size: $normal-font-size;
-    transition: .5s
+    transition: .5s;
+    background-color: $background-color-light;
 }
 
 a {
     text-decoration: none
+}
+
+.crypto-select{
+    font-family: 'cryptofont';
+    filter-option{
+        color: $primary-color;
+    }
+    
 }

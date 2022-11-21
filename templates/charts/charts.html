@@ -1,12 +1,53 @@
-<select id="asset" class="selectpicker" data-live-search="true">
-  {% for asset in assets %}
-    <option data-tokens="{{asset.ticker}}"><i class="cf cf-{{asset.symbol}}"></i>{{asset.name}}</option>
-  {%endfor%}
-</select>
+<div class="container chart-container">
+  <div class="row">
+    <div class="col-4 chart-filter p-3">
+      <div class="card">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item fw-bold">Settings</li>
+          <li class="list-group-item">
+            <div class="mb-3">
+              <label for="assetSelect" class="form-label d-block fw-semibold">Crypto</label>
+              <select id="assetSelect" class="selectpicker crypto-select" data-live-search="true" data-size="5">
+                {% for asset in assets %}
+                  <option data-tokens="{{asset.ticker}}">{{asset.symbol_unicode|safe}} {{asset.name}}</option>
+                {%endfor%}
+              </select>
+            </div>
+            <div class="mb-3">
+                <label for="startDate">Start</label>
+                <input id="startDate" class="form-control" type="date" />
+            </div>
+            <div class="mb-3">
+                <label for="endDate">End</label>
+                <input id="endDate" class="form-control" type="date" />
+            </div>
+            <div class="mb-3">
+              <label for="startDate">Scope</label>
+              <select class="form-select">
+                <option value="1">Day</option>
+                <option value="2">Week</option>
+                <option value="3">Month</option>
+              </select>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-8">
+      <div class="card">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item fw-bold">Chart</li>
+          <li class="list-group-item">
+            <canvas id="myChartBar"></canvas>
+          </li>
+        </ul>
+      </div>
+    </div>
+  <div>
+</div>
 
-<canvas id="myChartBar"></canvas>
 <script>
-  $('#asset').selectpicker();
+  $('#assetSelect').selectpicker();
   drawBarGraph("myChartBar")
   function drawBarGraph(id) {
     var labels = [

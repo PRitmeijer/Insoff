@@ -1,6 +1,7 @@
+{% load static %}
 <div class="container chart-container">
   <div class="row pb-3">
-    <div class="col-4 chart-filter">
+    <div class="col-12 col-md-4 mb-3 mb-md-0 chart-filter">
       <div class="card">
         <ul class="list-group list-group-flush">
           <li class="list-group-item fw-bold">Settings</li>
@@ -29,11 +30,26 @@
                 <option value="3">Month</option>
               </select>
             </div>
+            <div class="mb-3">
+              <p>Use</p>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="dataOptions" id="inlineRadio1" value="L" onchange="onChangeSettings(event);">
+                <label class="form-check-label" for="inlineRadio1">Low</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="dataOptions" id="inlineRadio2" value="A" onchange="onChangeSettings(event);" checked>
+                <label class="form-check-label" for="inlineRadio2">Average</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="dataOptions" id="inlineRadio3" onchange="onChangeSettings(event);" value="H">
+                <label class="form-check-label" for="inlineRadio3">High</label>
+              </div>
+            </div>
           </li>
         </ul>
       </div>
     </div>
-    <div class="col-8">
+    <div class="col-12 col-md-8">
       <div class="card">
         <ul class="list-group list-group-flush">
           <li class="list-group-item fw-bold">Chart</li>
@@ -49,7 +65,7 @@
       <div class="card">
         <ul class="list-group list-group-flush">
           <li class="list-group-item fw-bold">Data Used</li>
-          <li class="list-group-item">
+          <li class="list-group-item data-used-chart">
             <canvas id="dataUsedChart"></canvas>
           </li>
         </ul>
@@ -59,11 +75,19 @@
 </div>
 
 <script>
-$('#assetSelect').selectpicker();
+  $('#assetSelect').selectpicker();
+document.getElementById('startDate').valueAsDate = new Date(
+                                                    new Date().getFullYear(),
+                                                    new Date().getMonth() - 2, 
+                                                    new Date().getDate()
+                                                  );
+document.getElementById('endDate').valueAsDate = new Date();
 var assetInput = $("#assetSelect").val(),
 startDateInput = document.getElementById('startDate').valueAsDate,
 endDateInput = document.getElementById('endDate').valueAsDate,
 scopeInput = document.getElementById('scopeSelect').value;
+dataInput = document.querySelector('input[name="dataOptions"]:checked').value;
+updateData();
 
 function onChangeSettings(e){
   var id = e.target.id,
@@ -96,7 +120,10 @@ function onChangeSettings(e){
         }
         break;
       default:
-        console.log(`${e.target.id} does not exist!`);
+        if (dataInput != value){
+          dataInput = value;
+          updateData();
+        }
         break;
     }
   }
@@ -111,7 +138,8 @@ function get_data(){
         'from_date': startDateInput.toJSON(),
         'to_date': endDateInput.toJSON(),
         'asset':assetInput,
-        'scope':scopeInput
+        'scope':scopeInput,
+        'pricedata':dataInput
       },
       success : function(data) {
         console.log(data)
@@ -121,13 +149,26 @@ function get_data(){
 }
 
 function updateData(){
-  if (assetInput && startDateInput && endDateInput && scopeInput){
+  if (assetInput && startDateInput && endDateInput && scopeInput && dataInput){
     console.log('compleet');
     get_data().then(function(results){
       console.log(results)
-      var graph_data = results.results;
-      drawBarGraph(graph_data, "myChartBar");
+      correctSettings(results.start, results.end)
+      drawBarGraph(results.results, "myChartBar");
+      drawLineGraph(results.raw_data, "dataUsedChart");
     });
+  }
+}
+
+function correctSettings(start, end){
+  start = new Date(start)
+  end = new Date(end)
+  if (startDateInput != start){
+    document.getElementById('startDate').valueAsDate = start
+    
+  }
+  if (endDateInput != end){
+    document.getElementById('endDate').valueAsDate = end;
   }
 }
 
@@ -135,7 +176,10 @@ function drawBarGraph(data, id) {
   var labels = data.map(a => a.date);
   var chartdata = data.map(a => a.amount);
   var ctx = document.getElementById(id).getContext('2d');
-  var myChart = new Chart(ctx, {
+  if(window.bar != undefined){
+    window.bar.destroy();
+  }
+  window.bar = new Chart(ctx ,{
     type: 'bar',
     data: {
       labels: labels,
@@ -163,18 +207,44 @@ function drawBarGraph(data, id) {
       }]
     },
     options: {
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
-          }
-        }]
-      },
+      responsive: true,
       legend: {
         display: false
       }
     }
   });
 }
-</script>
 
+function drawLineGraph(data, id){
+  var labels = data.map(a => a.date);
+  var chartdata = data.map(a => a.amount);
+  var ctx = document.getElementById(id).getContext('2d');
+  if(window.lineHistory != undefined){
+    window.lineHistory.destroy();
+  }
+  window.lineHistory = new Chart(ctx ,{
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: chartdata,
+        backgroundColor: [
+        'rgba(201, 0, 118, 0.2)',
+        ],
+        borderColor: [
+          'rgba(201, 0, 118, 1)',
+        ],
+        pointBackgroundColor: 'rgba(201, 0, 118, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      legend: {
+        display: false
+      }
+    },
+  });
+}
+</script>

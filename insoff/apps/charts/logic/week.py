@@ -1,6 +1,7 @@
-from django.http import JsonResponse
 from datetime import datetime, timedelta
 from charts.models import *
+from django.db.models import F
+
 
 def same_week_as_current(date):
     '''returns true if a date is part of the current week'''
@@ -12,12 +13,14 @@ def same_week_as_current(date):
 def validate_date_range(start, end):
     if same_week_as_current(start):
         start = start - timedelta(weeks=1)
-    if start.weekday() != 0:
-        start = start - timedelta(days=start.weekday())
+    startweekday = start.weekday()
+    if startweekday != 0:
+        start = start - timedelta(days=startweekday)
     if same_week_as_current(end):
         end = end - timedelta(weeks=1)
+    endweekday = end.weekday()
     if end.weekday() != 0:
-        end = end - timedelta(days=end.weekday())
+        end = end - timedelta(days=endweekday)
     return start, end
 
 
@@ -29,27 +32,24 @@ def find_week_starts(start,end):
         weekly += timedelta(days=7)
     return week_l
 
-def get_average_week(asset, from_date, to_date):
+def  get_week_data(asset, from_date, to_date, pricedata):
     start, end = validate_date_range(from_date, to_date)
-    weeks = find_week_starts(start, end)
-    week_d = {'Monday':0, 'Tuesday':0, 'Wednesday':0, 'Thursday':0, 'Friday':0, 'Saturday':0, 'Sunday':0}
     all_stats = PriceStat.objects.filter(
             asset = asset,
-            date__gte = from_date,
-            date__lte = to_date,
+            date__gte = start,
+            date__lt = end,
             interval = 3
     )
+
+    weeks = find_week_starts(start, end)
+    labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    data = []
     for index in range(len(weeks) -1):
-        week1, week2 = weeks[index], weeks[index+1]
-        lowest_day_average = all_stats.filter(
-            date__gte = weeks[index],
-            date__lte = weeks[index+1],
-        ).order_by('vwap').first()
-        if lowest_day_average:
-            day = lowest_day_average.date.strftime("%A")
-            if day not in week_d:
-                week_d[day] = 1
-            else:
-                week_d[day] += 1
+        week_start, week_end = weeks[index], weeks[index+1]
+        week_stats = all_stats.filter(
+            date__gte = week_start,
+            date__lt = week_end,
+        ).order_by('date').values('date', value=F(f'{pricedata}'))
+        data.append(list(week_stats))
     
-    return start, end, week_d
+    return start, end, labels, data

@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import authentication, permissions
 from django.contrib.auth.models import User
 
-from insoff.apps.charts.logic.average import get_average
+from insoff.apps.charts.logic.bsdex import get_bsdex
 
 
 # Create your views here.
@@ -37,5 +37,6 @@ class ChartData(APIView):
         to_date = datetime.strptime(request.POST.get('to_date'), '%Y-%m-%dT%H:%M:%S.%fZ')
         asset = request.POST.get('asset')
         scope = int(request.POST.get('scope'))
-        result = get_average(asset, from_date, to_date, scope)
+        pricedata = request.POST.get('pricedata')
+        result = get_bsdex(asset, from_date, to_date, scope, pricedata)
         return Response(status=200, data=result)

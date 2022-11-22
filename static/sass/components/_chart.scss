@@ -1,6 +1,7 @@
 .chart-container{
-    .row{
-    }
-    .chart-filter{
+    .data-used-chart{
+        canvas{
+            height: 300px;
+        }
     }
 }

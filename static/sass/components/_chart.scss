@@ -1,4 +1,9 @@
 .chart-container{
+    .result-chart{
+        canvas{
+            height: 100%;
+        }
+    }
     .data-used-chart{
         canvas{
             height: 300px;

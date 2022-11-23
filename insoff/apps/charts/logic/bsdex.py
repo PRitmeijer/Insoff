@@ -29,7 +29,7 @@ def get_bsdex(asset, from_date, to_date, scope, pricedata):
             "results": [
                 {
                     "date":key,
-                    "amount":value
+                    "amount":round(value, 3)
                 } for key, value in bsdex_dict.items()
             ],
             "raw_data": [
@@ -47,10 +47,11 @@ def create_bsdex_json(labels, data_dict):
         average = float(sum(d['value'] for d in datalist)) / len(datalist)
         for index, data in enumerate(datalist):
             bsdex = float(data['value']) / average
+            percentage = float(bsdex - 1) * 100
             if index not in bsdex_dict:
-                bsdex_dict[index] = bsdex
+                bsdex_dict[index] = percentage
             else:
-                bsdex_dict[index] += bsdex
+                bsdex_dict[index] += percentage
     for index in range(len(data_dict[0])):
         bsdex_dict[labels[index]] = bsdex_dict.pop(index)
     result = {key: value / len(data_dict) for key, value in bsdex_dict.items()}

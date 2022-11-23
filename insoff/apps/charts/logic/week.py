@@ -11,16 +11,26 @@ def same_week_as_current(date):
               and d1.year == d2.year  
 
 def validate_date_range(start, end):
-    if same_week_as_current(start):
-        start = start - timedelta(weeks=1)
-    startweekday = start.weekday()
-    if startweekday != 0:
-        start = start - timedelta(days=startweekday)
-    if same_week_as_current(end):
-        end = end - timedelta(weeks=1)
-    endweekday = end.weekday()
-    if end.weekday() != 0:
-        end = end - timedelta(days=endweekday)
+    if end > datetime.now():
+        end = datetime.now().replace(hour=0, minute=0)
+    
+    if start > end - timedelta(weeks=1):
+        start = end - timedelta(weeks=1)
+
+    if start.weekday() != end.weekday():
+        start = start.replace(hour=0, minute=0) - timedelta(days=(start.weekday() - end.weekday()))
+    # if same_week_as_current(end):
+    #     end = end - timedelta(weeks=1)
+    # if same_week_as_current(start):
+    #     start = start - timedelta(weeks=1)
+    # startweekday = start.weekday()
+    # if startweekday != 0:
+    #     start = start - timedelta(days=startweekday)
+    # if same_week_as_current(end):
+    #     end = end - timedelta(weeks=1)
+    # endweekday = end.weekday()
+    # if end.weekday() != 0:
+    #     end = end - timedelta(days=endweekday)
     return start, end
 
 
@@ -32,6 +42,14 @@ def find_week_starts(start,end):
         weekly += timedelta(days=7)
     return week_l
 
+def get_week_labels(start):
+    labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    if start.weekday() == 0:
+        return labels
+    else:
+        index = start.weekday() - 1
+        return labels[index + 1:] + labels[:index + 1]
+
 def  get_week_data(asset, from_date, to_date, pricedata):
     start, end = validate_date_range(from_date, to_date)
     all_stats = PriceStat.objects.filter(
@@ -42,7 +60,8 @@ def  get_week_data(asset, from_date, to_date, pricedata):
     )
 
     weeks = find_week_starts(start, end)
-    labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+    labels = get_week_labels(start)
     data = []
     for index in range(len(weeks) -1):
         week_start, week_end = weeks[index], weeks[index+1]

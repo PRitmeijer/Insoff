@@ -1,11 +1,11 @@
 {% load static %}
 <div class="container chart-container">
   <div class="row pb-3">
-    <div class="col-12 col-md-4 mb-3 mb-md-0 chart-filter">
-      <div class="card">
-        <ul class="list-group list-group-flush">
+    <div class="col-12 col-lg-4 mb-3 mb-lg-0 chart-filter">
+      <div class="card h-100">
+        <ul class="list-group list-group-flush h-100">
           <li class="list-group-item fw-bold">Settings</li>
-          <li class="list-group-item">
+          <li class="list-group-item h-100">
             <div class="mb-3">
               <label for="assetSelect" class="form-label d-block fw-semibold">Crypto</label>
               <select id="assetSelect" class="selectpicker crypto-select" data-live-search="true" data-size="5" data-width="100%" onchange="onChangeSettings(event);">
@@ -30,8 +30,27 @@
                 <option value="3">Month</option>
               </select>
             </div>
+            <div class="mb-3" id="day-select" style="display: none;">
+              <p>Days</p>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined"  value="Monday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined">Mon</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Tue</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Wed</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Wed</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Thu</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Fri</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Sat</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Sun</label>
+            </div>
             <div class="mb-3">
-              <p>Use</p>
+              <p>Dataset to use</p>
               <div class="form-check form-check-inline">
                 <input class="form-check-input" type="radio" name="dataOptions" id="inlineRadio1" value="L" onchange="onChangeSettings(event);">
                 <label class="form-check-label" for="inlineRadio1">Low</label>
@@ -49,12 +68,12 @@
         </ul>
       </div>
     </div>
-    <div class="col-12 col-md-8">
-      <div class="card">
-        <ul class="list-group list-group-flush">
+    <div class="col-12 col-lg-8">
+      <div class="card h-100">
+        <ul class="list-group list-group-flush h-100">
           <li class="list-group-item fw-bold">Chart</li>
-          <li class="list-group-item">
-            <canvas id="myChartBar"></canvas>
+          <li class="list-group-item h-100 result-chart">
+            <canvas id="resultsChart"></canvas>
           </li>
         </ul>
       </div>
@@ -116,6 +135,12 @@ function onChangeSettings(e){
       case 'scopeSelect':
         if (scopeInput != value){
           scopeInput = value;
+          if(scopeInput == 1){
+            $("#day-select").show();
+          }
+          else{
+            $("#day-select").hide();
+          }
           updateData();
         }
         break;
@@ -152,22 +177,28 @@ function updateData(){
   if (assetInput && startDateInput && endDateInput && scopeInput && dataInput){
     console.log('compleet');
     get_data().then(function(results){
-      console.log(results)
-      correctSettings(results.start, results.end)
-      drawBarGraph(results.results, "myChartBar");
-      drawLineGraph(results.raw_data, "dataUsedChart");
+      if (results){
+        console.log(results)
+        correctSettings(results.start, results.end)
+        drawBarGraph(results.results, "resultsChart");
+        drawLineGraph(results.raw_data, "dataUsedChart");
+      }
     });
   }
 }
 
 function correctSettings(start, end){
   start = new Date(start)
+  start = new Date(start.getTime() - (start.getTimezoneOffset() * 60000))
   end = new Date(end)
+  end = new Date(end.getTime() - (end.getTimezoneOffset() * 60000))
   if (startDateInput != start){
-    document.getElementById('startDate').valueAsDate = start
+    startDateInput = start;
+    document.getElementById('startDate').valueAsDate = start;
     
   }
   if (endDateInput != end){
+    endDateInput = end;
     document.getElementById('endDate').valueAsDate = end;
   }
 }
@@ -208,6 +239,7 @@ function drawBarGraph(data, id) {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       legend: {
         display: false
       }

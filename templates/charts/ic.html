@@ -1,0 +1,134 @@
+{% load static %}
+<div class="container chart-container">
+  <div class="row pb-3">
+    <div class="col">
+      <h2>Investment Calculator</h2>
+      <p>Want to compare assets over a historical period of time or determine what the best day is to DCA? Go ahead!</p>
+    </div>
+  </div>
+  <div class="row pb-3">
+    <div class="col-12">
+      <div class="card">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item fw-bold">Assets</li>
+          <li class="list-group-item">
+            <div class="mb-3">
+                <select id="assetSelect" name="assetList[]" class="selectpicker crypto-select" data-live-search="true" data-size="5" data-width="100%" onchange="addAsset(this);" title="Search for assets..." data-selected-text-format="static">
+                  {% for asset in assets %}
+                    <option data-tokens="{{asset.ticker}}" value="{{asset.id}}" data-icon="{{asset.symbol|safe}}">{{asset.name}}</option>
+                  {%endfor%}
+                </select>
+            </div>
+            <div class="assets-selected row">
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="row pb-3">
+    <div class="col-12 col-lg-4 mb-3 mb-lg-0 chart-filter">
+      <div class="card h-100">
+        <ul class="list-group list-group-flush h-100">
+          <li class="list-group-item fw-bold">Settings</li>
+          <li class="list-group-item h-100">
+            <div class="mb-3">
+                <label for="startDate">Start</label>
+                <input id="startDate" class="form-control" type="date" onchange="onChangeSettings(this);"/>
+            </div>
+            <div class="mb-3">
+                <label for="endDate">End</label>
+                <input id="endDate" class="date form-control" type="date" onchange="onChangeSettings(this);"/>
+            </div>
+            <div class="mb-3">
+              <label for="scopeSelect">Purchase Interval</label>
+              <select id="scopeSelect" class="form-select" onchange="onChangeSettings(this);">
+                <option value="2" selected="selected">Weekly</option>
+                <option value="2" selected="selected">Montly</option>
+              </select>
+            </div>
+            <div class="mb-3" id="day-select" style="display: none;">
+              <p>Days</p>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined"  value="Monday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined">Mon</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Tue</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Wed</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Wed</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Thu</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Fri</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Sat</label>
+                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
+                <label class="btn btn-outline-primary" for="btn-check-outlined2">Sun</label>
+            </div>
+            <div class="mb-3">
+              <p>Dataset to use</p>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="dataOptions" id="inlineRadio1" value="L" onchange="onChangeSettings(this);">
+                <label class="form-check-label" for="inlineRadio1">Low</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="dataOptions" id="inlineRadio2" value="A" onchange="onChangeSettings(this);" checked>
+                <label class="form-check-label" for="inlineRadio2">Average</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="dataOptions" id="inlineRadio3" onchange="onChangeSettings(this);" value="H">
+                <label class="form-check-label" for="inlineRadio3">High</label>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-12 col-lg-8">
+      <div class="card h-100">
+        <ul class="list-group list-group-flush h-100">
+          <li class="list-group-item fw-bold">Chart</li>
+          <li class="list-group-item h-100 result-chart">
+            <canvas id="resultsChart"></canvas>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item fw-bold">Data Used</li>
+          <li class="list-group-item data-used-chart">
+            <canvas id="dataUsedChart"></canvas>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function get_data(asset){
+  console.log(asset);
+  return $.ajax({
+      type: "POST",
+      url: "{% url 'api_chart_bsindex_data' %}", 
+      data: {
+        'csrfmiddlewaretoken': '{{csrf_token}}',
+        'from_date': startDateInput.toJSON(),
+        'to_date': endDateInput.toJSON(),
+        'asset':asset.id,
+        'scope':scopeInput,
+        'pricedata':dataInput
+      },
+      success : function(data) {
+        console.log(data)
+        return data
+      }
+  });
+}
+</script>
+<script src="{% static 'js/ic.js' %}"></script>

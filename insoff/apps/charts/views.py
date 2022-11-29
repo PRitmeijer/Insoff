@@ -19,22 +19,33 @@ def home(request):
 def charts(request):
     return render(request, 'portal/dashboard.html')
 
-
-class ChartOverview(APIView):
+#Investment Calculator
+class ChartIC(APIView):
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'charts/charts.html'
+    template_name = 'charts/ic.html'
 
     def get(self, request):
         assets = Asset.objects.all()
         return Response({'assets':assets})
 
-class ChartData(APIView):
+#BuySell Index
+class ChartBS(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'charts/bsindex.html'
+
+    def get(self, request):
+        assets = Asset.objects.all()
+        return Response({'assets':assets})
+
+class ChartBSData(APIView):
     authentication_classes = []
     permission_classes = []
 
     def post(self, request, format=None):
         from_date = datetime.strptime(request.POST.get('from_date'), '%Y-%m-%dT%H:%M:%S.%fZ')
         to_date = datetime.strptime(request.POST.get('to_date'), '%Y-%m-%dT%H:%M:%S.%fZ')
+        print(from_date)
+        print(to_date)
         asset = request.POST.get('asset')
         scope = int(request.POST.get('scope'))
         pricedata = request.POST.get('pricedata')

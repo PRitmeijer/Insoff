@@ -3,6 +3,7 @@ from charts import views
 
 
 urlpatterns = [
-    path('api/chartview', views.ChartOverview.as_view(), name='api_chart_overview'),
-    path('api/raw_data', views.ChartData.as_view(), name='api_raw_data'),
+    path('api/chartview/ic', views.ChartIC.as_view(), name='api_chart_ic'),
+    path('api/chartview/bsindex', views.ChartBS.as_view(), name='api_chart_bsindex'),
+    path('api/bs/data', views.ChartBSData.as_view(), name='api_chart_bsindex_data'),
 ]

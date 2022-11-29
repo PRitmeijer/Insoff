@@ -1,4 +1,7 @@
 .chart-container{
+    .assets-selected{
+        font-family: 'cryptofont', $base-font;
+    }
     .result-chart{
         canvas{
             height: 100%;
@@ -8,5 +11,10 @@
         canvas{
             height: 300px;
         }
+    }
+    .add-asset{
+        border-radius: 100%;
+        font-size: 0.8rem;
+        padding: 0.5rem 0.5rem;
     }
 }

@@ -15,7 +15,8 @@
                         <div>
                             <div class="nav_list">
                                 <a href="javascript:javascript:void(0)" onClick="javascript:nav_dashboard()" class="nav_logo"><span class="nav_name">BSBOT</span></a>
-                                <a href="javascript:javascript:void(0)" onClick="javascript:nav_charts()" class="nav_link active"><span class="nav_name">BS Index</span></a>
+                                <a href="javascript:javascript:void(0)" onClick="javascript:nav_investmentchart()" class="nav_link active"><span class="nav_name">Investment Calculator</span></a>
+                                <a href="javascript:javascript:void(0)" onClick="javascript:nav_bschart()" class="nav_link"><span class="nav_name">BS Index</span></a>
                                 <a href="#" class="nav_link"><span class="nav_name">About Us</span></a>
                             </div>
                         </div>
@@ -43,11 +44,20 @@
                  }
             });
         } {% endcomment %}
-
-        function nav_charts(){
+        function nav_investmentchart(){
             $.ajax({
                 type: "GET",
-                url: "{% url 'api_chart_overview' %}", 
+                url: "{% url 'api_chart_ic' %}", 
+                success : function(data) {
+                     $('#main-content').html(data);
+                 }
+            });
+        }
+
+        function nav_bschart(){
+            $.ajax({
+                type: "GET",
+                url: "{% url 'api_chart_bsindex' %}", 
                 success : function(data) {
                      $('#main-content').html(data);
                  }

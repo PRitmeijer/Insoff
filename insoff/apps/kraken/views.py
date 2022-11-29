@@ -3,7 +3,7 @@ from django.shortcuts import render
 from datetime import datetime, timedelta
 from unicodedata import decimal
 from wsgiref.handlers import format_date_time
-from charts.models import Asset, PriceInterval, Provider, PriceStat
+from assets.models import Asset, PriceInterval, Provider, PriceStat
 from decimal import Decimal
 from django.db import models
 

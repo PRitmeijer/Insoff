@@ -2,7 +2,7 @@ from tabnanny import check
 from django.http import JsonResponse
 from django.shortcuts import render
 from datetime import datetime, timedelta
-from charts.models import *
+from assets.models import *
 from rest_framework.views import APIView
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response

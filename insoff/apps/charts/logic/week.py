@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from charts.models import *
+from assets.models import *
 from django.db.models import F
 
 

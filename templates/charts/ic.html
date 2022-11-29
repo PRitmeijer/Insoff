@@ -115,7 +115,7 @@ function get_data(asset){
   console.log(asset);
   return $.ajax({
       type: "POST",
-      url: "{% url 'api_chart_bsindex_data' %}", 
+      url: "{% url 'api_chart_ic_data' %}", 
       data: {
         'csrfmiddlewaretoken': '{{csrf_token}}',
         'from_date': startDateInput.toJSON(),

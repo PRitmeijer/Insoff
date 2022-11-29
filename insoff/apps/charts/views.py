@@ -28,6 +28,21 @@ class ChartIC(APIView):
         assets = Asset.objects.all()
         return Response({'assets':assets})
 
+class ChartICData(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request, format=None):
+        from_date = datetime.strptime(request.POST.get('from_date'), '%Y-%m-%dT%H:%M:%S.%fZ')
+        to_date = datetime.strptime(request.POST.get('to_date'), '%Y-%m-%dT%H:%M:%S.%fZ')
+        print(from_date)
+        print(to_date)
+        asset = request.POST.get('asset')
+        scope = int(request.POST.get('scope'))
+        pricedata = request.POST.get('pricedata')
+        result = get_bsdex(asset, from_date, to_date, scope, pricedata)
+        return Response(status=200, data=result)
+
 #BuySell Index
 class ChartBS(APIView):
     renderer_classes = [TemplateHTMLRenderer]

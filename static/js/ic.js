@@ -89,7 +89,7 @@ function addAsset(assetObject){
 
     assetListDiv.appendChild(newAsset);
 
-    var asset = {id:value, name:name, indexColor:indexColor, assetColor:assetColor, assetColor:assetColor};
+    var asset = {id:value, name:name, indexColor:indexColor, assetColor:assetColor};
     assetList.push(asset);
 
     updateAssetData(asset);
@@ -99,8 +99,9 @@ function addAsset(assetObject){
 function removeAsset(assetElement, id){
   assetListDiv.removeChild(assetElement);
   assetList = assetList.filter(a => a.id != id);
-  removeChartData(bSBar,id);
+  removeChartData(investmentLineGraph, id);
   removeChartData(historyLineGraph, id);
+  removeTableData(id)
 }
 
 function updateAssetListData(){
@@ -137,6 +138,7 @@ function updateAssetData(asset){
         else {
           drawHistoricGraph(asset, results.raw_data, "dataUsedChart");
         }
+        updateTableData(asset, results)
       }
     });
   }
@@ -264,6 +266,7 @@ function drawLineGraph(ctx, labels, chartdata, asset){
         label: asset.name,
         data: chartdata,
         backgroundColor: assetBackgroundColors[asset.indexColor],
+        fill: false,
         borderColor: assetColors[asset.indexColor],
         pointBackgroundColor: 'rgba(201, 0, 118, 1)',
         borderWidth: 1
@@ -282,6 +285,7 @@ function addChartData(chart, id, label, backgroundcolor, color, data) {
     label: label,
     backgroundColor: backgroundcolor,
     borderColor: color,
+    fill: false,
     borderWidth: 1,
     data: data
   });
@@ -291,4 +295,33 @@ function addChartData(chart, id, label, backgroundcolor, color, data) {
 function removeChartData(chart, id){
   chart.data.datasets = chart.data.datasets.filter(a => a.id != id);
   chart.update()
+}
+
+//Tables
+function addTableData(asset, data) {
+  $('#asset-stat-table > tbody:last-child').append(`
+    <tr id='${asset.id}' style="background-color:${assetBackgroundColors[asset.indexColor]}">
+      <th scope="row" style="color:${assetColors[asset.indexColor]}">${asset.name}</th>
+      <td>${data.total_amount}</td>
+      <td>${data.total_invested}</td>
+      <td>${data.total_value}</td>
+      <td>${data.percent_change}%</td>
+    </tr>
+  `);
+}
+
+function updateTableData(asset, data){
+  var existing_row = $(`#${asset.id}`);
+  if(existing_row.length !== 0){
+    var cols = existing_row.children();
+    cols[1].innerHTML = data.total_amount;
+    cols[2].innerHTML = data.total_invested;
+    cols[3].innerHTML = data.total_value;
+    cols[4].innerHTML = data.percent_change;
+  } else {
+    addTableData(asset, data);
+  }
+}
+function removeTableData(id) {
+  $(`#${id}`).remove();
 }

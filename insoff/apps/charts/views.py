@@ -41,7 +41,6 @@ class ChartICData(APIView):
         asset = request.POST.get('asset')
         purchase_amount = int(request.POST.get('purchase_amount'))
         interval = int(request.POST.get('interval'))
-        interval = 2
         pricedata = request.POST.get('pricedata')
         result = get_investmentgraph(asset, from_date, to_date, purchase_amount, interval, pricedata)
         return Response(status=200, data=result)

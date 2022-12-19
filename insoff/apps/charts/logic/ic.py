@@ -13,6 +13,7 @@ import calendar
 import statistics
 from itertools import chain
 from django.db.models import F
+from decimal import Decimal
 
 from charts.logic.transform import transform_pricedata
 
@@ -20,14 +21,18 @@ from charts.logic.transform import transform_pricedata
 def get_investmentgraph(asset, from_date, to_date, purchase_amount, interval, pricedata):
     pricedata = transform_pricedata(pricedata)
     raw_data = get_raw_data(asset, from_date, to_date, interval, pricedata)
-    data = get_investment_data(raw_data, purchase_amount)
+    total_invested, total_amount,  total_value, percent_change, data = get_investment_data(raw_data, purchase_amount)
     data = {
+            "total_invested": round(total_invested, 2),
+            "total_amount": round(total_amount, 4),
+            "total_value": round(total_value, 2),
+            "percent_change": round(percent_change, 2),
             "start":from_date,
             "end":to_date,
             "results": [
                 {
                     "date":instance['date'],
-                    "amount":round(instance['portfolio_value'], 3)
+                    "amount":round(instance['portfolio_value'], 2)
                 } for instance in data
             ],
             "raw_data": [
@@ -41,14 +46,17 @@ def get_investmentgraph(asset, from_date, to_date, purchase_amount, interval, pr
 
 #def get_
 def get_investment_data(raw_data, purchase_amount):
-    accumulated_amount = 0
+    total_amount = 0
     for instance in raw_data:
         value = instance['value']
         amount = purchase_amount / value
-        portfolio_value = (amount + accumulated_amount) * value
+        portfolio_value = (amount + total_amount) * value
         instance['portfolio_value'] = portfolio_value
-        accumulated_amount += amount
-    return raw_data
+        total_amount += amount
+    total_invested = purchase_amount * len(raw_data)
+    total_value = portfolio_value
+    percent_change = ((total_value - total_invested) / total_invested) * 100
+    return total_invested, total_amount, total_value, percent_change, raw_data
 
 
 def get_raw_data(asset, from_date, to_date, interval, pricedata):
@@ -60,7 +68,8 @@ def get_raw_data(asset, from_date, to_date, interval, pricedata):
             date = date.date(),
             interval = 3
         ).values('date', value=F(f'{pricedata}')).first()
-        data.append(stat)
+        if stat:
+            data.append(stat)
 
     return data
 

@@ -1,7 +1,7 @@
 //Variables decleration
 var assetList = [];
 
-var bSBar = undefined;
+var investmentLineGraph = undefined;
 var historyLineGraph = undefined;
 
 var reloadChart = true;
@@ -19,21 +19,22 @@ var assetBackgroundColors = [
 ];
 
 //Initial setup
-document.getElementById('startDate').valueAsDate = new Date(
-                                                    new Date().getFullYear(),
-                                                    new Date().getMonth() - 2, 
-                                                    new Date().getDate()
-                                                  );
+document.getElementById('purchaseAmount').value = 50;
+document.getElementById('periodInput').value = 6;
 document.getElementById('endDate').valueAsDate = new Date();
 
 var assetListDiv = $(".assets-selected")[0],
 assetSelector = document.getElementById('assetSelect'),
 assetInput = [],
-startDateInput = document.getElementById('startDate').valueAsDate,
+purchaseAmountInput = document.getElementById('purchaseAmount').value,
+intervalInput = document.getElementById('intervalSelect').value;
+periodInput = document.getElementById('periodInput').value;
+periodScopeInput = document.getElementById('periodSelect').value;
 endDateInput = document.getElementById('endDate').valueAsDate,
-scopeInput = document.getElementById('scopeSelect').value;
-dataInput = document.querySelector('input[name="dataOptions"]:checked').value;
+startDateInput = null,
+dataInput = 'A';
 
+updateStartDate();
 $('#assetSelect').selectpicker();
 assetSelector.selectedIndex = 1;
 addAsset(assetSelector);
@@ -51,7 +52,7 @@ function getColorIndex(){
 
 //Input validation
 function validateInput(){
-  if (assetInput && startDateInput && endDateInput && scopeInput && dataInput){
+  if (assetInput && purchaseAmountInput && startDateInput && endDateInput && intervalInput && dataInput){
     return true;
   }
   return false;
@@ -124,21 +125,48 @@ function updateAssetData(asset){
         reload = getReloadChartBool();
         console.log(results)
         correctSettings(results.start, results.end)
-        if (bSBar != undefined && !reload){
-          addChartData(bSBar, asset.id, asset.name, assetBackgroundColors[asset.indexColor], assetColors[asset.indexColor], results.results.map(a => a.amount));
+        if (investmentLineGraph != undefined && !reload){
+          addChartData(investmentLineGraph, asset.id, asset.name, assetBackgroundColors[asset.indexColor], assetColors[asset.indexColor], results.results.map(a => a.amount));
         }
         else {
-          drawBSBarGraph(asset, results.results, "resultsChart");
+          drawInvestmentGraph(asset, results.results, "resultsChart");
         }
         if (historyLineGraph != undefined && !reload){
           addChartData(historyLineGraph, asset.id, asset.name, assetBackgroundColors[asset.indexColor], assetColors[asset.indexColor], results.raw_data.map(a => a.amount));
         }
         else {
-          drawHistoryLineGraph(asset, results.raw_data, "dataUsedChart");
+          drawHistoricGraph(asset, results.raw_data, "dataUsedChart");
         }
       }
     });
   }
+}
+
+function updateStartDate(){
+  switch(periodScopeInput){
+    case '1':
+      startDateInput = new Date(
+        endDateInput.getFullYear(),
+        endDateInput.getMonth(),
+        endDateInput.getDate() - (7 * periodInput)
+      );
+      break;
+    case '2':
+      startDateInput = new Date(
+        endDateInput.getFullYear(),
+        endDateInput.getMonth() - periodInput,
+        endDateInput.getDate()
+      );
+      break;
+    case '3':
+      startDateInput = new Date(
+        endDateInput.getFullYear() - periodInput,
+        endDateInput.getMonth(),
+        endDateInput.getDate()
+      );
+      break;
+  }
+  console.log(startDateInput)  
 }
 
 //SETTINGS
@@ -148,6 +176,26 @@ function onChangeSettings(onChangeObject){
   valueAsDate = onChangeObject.valueAsDate;
   if (id && (value || valueAsDate)){
     switch(id){
+      case 'purchaseAmount':
+        if (purchaseAmountInput != value){
+          purchaseAmountInput = value;
+          updateAssetListData();
+        }
+        break;
+      case 'periodInput':
+        if (periodInput != value){
+          periodInput = value;
+          updateStartDate();
+          updateAssetListData();
+        }
+        break;
+      case 'periodSelect':
+        if (periodScopeInput != value){
+          periodScopeInput = value;
+          updateStartDate()
+          updateAssetListData();
+        }
+        break;
       case 'startDate':
         if (startDateInput != valueAsDate){
           startDateInput = valueAsDate;
@@ -160,15 +208,9 @@ function onChangeSettings(onChangeObject){
           updateAssetListData();
         }
         break;
-      case 'scopeSelect':
-        if (scopeInput != value){
-          scopeInput = value;
-          if(scopeInput == 1){
-            $("#day-select").show();
-          }
-          else{
-            $("#day-select").hide();
-          }
+      case 'intervalSelect':
+        if (intervalInput != value){
+          intervalInput = value;
           updateAssetListData();
         }
         break;
@@ -183,15 +225,8 @@ function onChangeSettings(onChangeObject){
 }
 
 function correctSettings(start, end){
-  start = new Date(start)
-  start = new Date(start.getTime() - (start.getTimezoneOffset() * 60000))
   end = new Date(end)
   end = new Date(end.getTime() - (end.getTimezoneOffset() * 60000))
-  if (startDateInput != start){
-    startDateInput = start;
-    document.getElementById('startDate').valueAsDate = start;
-    
-  }
   if (endDateInput != end){
     endDateInput = end;
     document.getElementById('endDate').valueAsDate = end;
@@ -199,41 +234,28 @@ function correctSettings(start, end){
 }
 
 //CHART JS
-function drawBSBarGraph(asset, data, id) {
-  var labels = data.map(a => a.date);
-  var chartdata = data.map(a => a.amount);
-  var ctx = document.getElementById(id).getContext('2d');
-  if(bSBar != undefined){
-    bSBar.destroy();
-  }
-  bSBar = new Chart(ctx ,{
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        id: asset.id,
-        label: asset.name,
-        data: chartdata,
-        backgroundColor: assetBackgroundColors[asset.indexColor],
-        borderColor: assetColors[asset.indexColor],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-    }
-  });
-}
-
-function drawHistoryLineGraph(asset, data, id){
+function drawHistoricGraph(asset, data, id){
   var labels = data.map(a => a.date);
   var chartdata = data.map(a => a.amount);
   var ctx = document.getElementById(id).getContext('2d');
   if(historyLineGraph != undefined){
     historyLineGraph.destroy();
   }
-  historyLineGraph = new Chart(ctx ,{
+  historyLineGraph = drawLineGraph(ctx, labels, chartdata, asset)
+}
+
+function drawInvestmentGraph(asset, data, id){
+  var labels = data.map(a => a.date);
+  var chartdata = data.map(a => a.amount);
+  var ctx = document.getElementById(id).getContext('2d');
+  if(investmentLineGraph != undefined){
+    investmentLineGraph.destroy();
+  }
+  investmentLineGraph = drawLineGraph(ctx, labels, chartdata, asset)
+}
+
+function drawLineGraph(ctx, labels, chartdata, asset){
+  return new Chart(ctx ,{
     type: 'line',
     data: {
       labels: labels,

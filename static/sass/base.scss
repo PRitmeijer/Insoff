@@ -28,6 +28,9 @@ a {
     font-family: 'cryptofont', $base-font;
     filter-option{
         color: $primary-color;
-    }
-    
+    }   
+}
+
+#periodInput{
+    border-radius: .375rem 0px 0px .375rem;
 }

@@ -9,6 +9,7 @@ from rest_framework import authentication, permissions
 from django.contrib.auth.models import User
 
 from insoff.apps.charts.logic.bsdex import get_bsdex
+from insoff.apps.charts.logic.ic import get_investmentgraph
 
 
 # Create your views here.
@@ -38,9 +39,11 @@ class ChartICData(APIView):
         print(from_date)
         print(to_date)
         asset = request.POST.get('asset')
-        scope = int(request.POST.get('scope'))
+        purchase_amount = int(request.POST.get('purchase_amount'))
+        interval = int(request.POST.get('interval'))
+        interval = 2
         pricedata = request.POST.get('pricedata')
-        result = get_bsdex(asset, from_date, to_date, scope, pricedata)
+        result = get_investmentgraph(asset, from_date, to_date, purchase_amount, interval, pricedata)
         return Response(status=200, data=result)
 
 #BuySell Index

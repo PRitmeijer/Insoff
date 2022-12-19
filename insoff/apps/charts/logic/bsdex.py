@@ -13,6 +13,7 @@ import statistics
 from itertools import chain
 
 from charts.logic.week import get_week_data
+from charts.logic.transform import transform_pricedata
 
 def get_bsdex(asset, from_date, to_date, scope, pricedata):
     pricedata = transform_pricedata(pricedata)
@@ -59,6 +60,3 @@ def create_bsdex_json(labels, data_dict):
 
 def best_date(stats):
     return
-
-def transform_pricedata(pricedata):
-    return 'low' if pricedata == 'L' else 'high' if pricedata == 'H' else 'vwap'

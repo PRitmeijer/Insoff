@@ -33,53 +33,38 @@
           <li class="list-group-item fw-bold">Settings</li>
           <li class="list-group-item h-100">
             <div class="mb-3">
-                <label for="startDate">Start</label>
-                <input id="startDate" class="form-control" type="date" onchange="onChangeSettings(this);"/>
+              <label for="purchaseAmount">Purchase Amount</label>
+              <div class="input-group mb-3">
+                <span class="input-group-text">$</span>
+                <input id="purchaseAmount" type="number" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" onchange="onChangeSettings(this);">
+                <span class="input-group-text">.00</span>
+              </div>
             </div>
             <div class="mb-3">
-                <label for="endDate">End</label>
-                <input id="endDate" class="date form-control" type="date" onchange="onChangeSettings(this);"/>
-            </div>
-            <div class="mb-3">
-              <label for="scopeSelect">Purchase Interval</label>
-              <select id="scopeSelect" class="form-select" onchange="onChangeSettings(this);">
-                <option value="2" selected="selected">Weekly</option>
-                <option value="2" selected="selected">Montly</option>
+              <label for="intervalSelect">Investment Interval</label>
+              <select id="intervalSelect" class="form-select" onchange="onChangeSettings(this);">
+                <option value="0">Daily</option>
+                <option value="1" selected="selected">Weekly</option>
+                <option value="2">Every two weeks</option>
+                <option value="3">Montly</option>
               </select>
             </div>
-            <div class="mb-3" id="day-select" style="display: none;">
-              <p>Days</p>
-                <input type="checkbox" class="btn-check" id="btn-check-outlined"  value="Monday"  autocomplete="off">
-                <label class="btn btn-outline-primary" for="btn-check-outlined">Mon</label>
-                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
-                <label class="btn btn-outline-primary" for="btn-check-outlined2">Tue</label>
-                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
-                <label class="btn btn-outline-primary" for="btn-check-outlined2">Wed</label>
-                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
-                <label class="btn btn-outline-primary" for="btn-check-outlined2">Wed</label>
-                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
-                <label class="btn btn-outline-primary" for="btn-check-outlined2">Thu</label>
-                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
-                <label class="btn btn-outline-primary" for="btn-check-outlined2">Fri</label>
-                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
-                <label class="btn btn-outline-primary" for="btn-check-outlined2">Sat</label>
-                <input type="checkbox" class="btn-check" id="btn-check-outlined2"  value="Tuesday"  autocomplete="off">
-                <label class="btn btn-outline-primary" for="btn-check-outlined2">Sun</label>
+            <div class="mb-3">
+              <label for="periodInput">Investment Period</label>
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <input id="periodInput" type="number" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" onchange="onChangeSettings(this);">
+                </div>
+                <select class="form-select" id="periodSelect" onchange="onChangeSettings(this);">
+                  <option value="1">Week(s)</option>
+                  <option value="2" selected="selected">Month(s)</option>
+                  <option value="3">Year(s)</option>
+                </select>
+              </div>
             </div>
             <div class="mb-3">
-              <p>Dataset to use</p>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="dataOptions" id="inlineRadio1" value="L" onchange="onChangeSettings(this);">
-                <label class="form-check-label" for="inlineRadio1">Low</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="dataOptions" id="inlineRadio2" value="A" onchange="onChangeSettings(this);" checked>
-                <label class="form-check-label" for="inlineRadio2">Average</label>
-              </div>
-              <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="dataOptions" id="inlineRadio3" onchange="onChangeSettings(this);" value="H">
-                <label class="form-check-label" for="inlineRadio3">High</label>
-              </div>
+                <label for="endDate">End Period</label>
+                <input id="endDate" class="date form-control" type="date" onchange="onChangeSettings(this);"/>
             </div>
           </li>
         </ul>
@@ -121,7 +106,8 @@ function get_data(asset){
         'from_date': startDateInput.toJSON(),
         'to_date': endDateInput.toJSON(),
         'asset':asset.id,
-        'scope':scopeInput,
+        'purchase_amount':purchaseAmountInput,
+        'interval':intervalInput,
         'pricedata':dataInput
       },
       success : function(data) {
